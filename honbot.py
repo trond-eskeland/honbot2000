@@ -9,6 +9,8 @@ import win32api, win32con
 import pynput
 import time
 
+from playsound import playsound
+
 mouse = pynput.mouse.Controller()
 keyboard = pynput.keyboard.Controller()
 
@@ -23,7 +25,7 @@ def UltiHero(x,y):
         if pyautogui.locateOnScreen('Ulti-on.png', grayscale=True, confidence=0.8) != None:
             print("I can see it")
             time.sleep(0.5)
-        else:
+        elif pyautogui.locateOnScreen('Ulti-off.png', grayscale=True, confidence=0.8) != None:
             keyboard.press('r')
             keyboard.release('r')
             time.sleep(0.1)
@@ -53,8 +55,25 @@ def on_release(key):
         # Stop listener
         return False
 
-with pynput.mouse.Listener(on_click=on_click) as listener:
-    listener.join()
+#with pynput.mouse.Listener(on_click=on_click) as listener:
+#    listener.join()
 
-UltiHero(position[0], position[1])
+#UltiHero(position[0], position[1])
 
+def LookForEnemy():
+    while True:
+        enemyLocation = pyautogui.locateOnScreen('enemyHealthBar.png', confidence=0.9)
+        if enemyLocation != None:
+            mouse.position = (enemyLocation[0]+50, enemyLocation[1]+100)
+            mouse.press(pynput.mouse.Button.x2)
+            time.sleep(0.05)
+            mouse.release(pynput.mouse.Button.x2)
+            mouse.press(pynput.mouse.Button.left)
+            time.sleep(0.05)
+            mouse.release(pynput.mouse.Button.left)
+            print("I can see it")
+            playsound('snap.wav')
+            time.sleep(0.1)
+     
+
+LookForEnemy()
