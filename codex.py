@@ -8,6 +8,7 @@ import random
 import win32api, win32con
 import pynput
 import time
+import overlay
 
 from playsound import playsound
 
@@ -16,18 +17,24 @@ keyboard = pynput.keyboard.Controller()
 
 position = []
 beforeBotting = []
-codexPosition = []
+codexPosition = [0,0]
 
-print("Gzdingty - Empath bot")
+print("Gzdingty - Codex bot")
 print("Usage: Ask a friend")
 
 def LookForEnemy():
     enemyLocation = pyautogui.locateOnScreen('enemyHealthBar.png', confidence=0.9)
     if enemyLocation != None:
-        mouse.position = (enemyLocation[0]+50, enemyLocation[1]+100)
-        mouse.press(pynput.mouse.Button.x2)
         time.sleep(0.05)
-        mouse.release(pynput.mouse.Button.x2)
+        print("Codex: " + str(codexPosition[0]) + " " + str(codexPosition[1]))
+        mouse.position = (codexPosition[0], codexPosition[1])
+        mouse.press(pynput.mouse.Button.left)
+        time.sleep(0.05)
+        mouse.release(pynput.mouse.Button.left)
+        time.sleep(0.05)
+        print("Enemy Position: " + str(enemyLocation[0]) + " " + str(enemyLocation[1]))
+        mouse.position = (enemyLocation[0]+50, enemyLocation[1]+100)
+        time.sleep(0.05)
         mouse.press(pynput.mouse.Button.left)
         time.sleep(0.05)
         mouse.release(pynput.mouse.Button.left)
@@ -36,12 +43,16 @@ def LookForEnemy():
         time.sleep(0.1)
 
 
-def LookForCodex():
-    if pyautogui.locateOnScreen('Codex1.png', grayscale=True, confidence=0.8) != None:
-        codex = pyautogui.locateOnScreen('Codex1.png', grayscale=True, confidence=0.8)
-        codexPosition = (codex[0], codex[1])
+def isCodexReady():
+    codex = pyautogui.locateOnScreen('Codex1.png', grayscale=True, confidence=0.8)
+    if codex != None: 
+        codexPosition[0] = codex[0]
+        codexPosition[1] = codex[1]
         print("Codex is ready")
-        time.sleep(0.5)
+        return True
+    else:
+        return False
+    
 
 def UltiHero(x,y):
     while True:
@@ -67,29 +78,16 @@ def UltiHero(x,y):
 
 def mainLoop():
     while True:
-        LookForCodex()
-        time.sleep(1)
+        if isCodexReady():
+            print("I got this far...")
+            LookForEnemy()
 
+overlay = overlay.Overlay(
+        'yes',
+        'Checking for IP address updates...',
+        500,
+        'fu'
+        )
+overlay.run()
 
-def on_click(x, y, button, pressed):
-    print('{0} at {1}'.format(
-        'Pressed' if pressed else 'Released',
-        (x, y)))
-    position.append(x)
-    position.append(y)
-    return False
-
-def on_release(key):
-    print('{0} release'.format(
-        key))
-    if key == pynput.keyboard.Key.esc:
-        # Stop listener
-        return False
-
-with pynput.mouse.Listener(on_click=on_click) as listener:
-    listener.join()
-
-#UltiHero(position[0], position[1])
-
-
-mainLoop()
+#mainLoop()
